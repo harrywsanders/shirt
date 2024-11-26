@@ -38,7 +38,7 @@ def test_load_and_preprocess_data(dummy_data_path):
     """
     train_dataset, val_dataset = load_and_preprocess_data(
         data_path=str(dummy_data_path),
-        task_key="mmlu_custom",
+        finetuning_task_key="mmlu_custom",
         max_prompt_length=512,
         data_type="dict_custom",
         max_completion_length=1  # Answers are single letters
@@ -61,7 +61,7 @@ def test_tokenize_data(dummy_data_path):
     """
     train_dataset, val_dataset = load_and_preprocess_data(
         data_path=str(dummy_data_path),
-        task_key="mmlu_custom",
+        finetuning_task_key="mmlu_custom",
         data_type="dict_custom",
         max_prompt_length=512,
         max_completion_length=1
@@ -108,7 +108,7 @@ def test_fine_tune_model(dummy_data_path, dummy_output_dir):
     """
     train_dataset, val_dataset = load_and_preprocess_data(
         data_path=str(dummy_data_path),
-        task_key="mmlu_custom",
+        finetuning_task_key="mmlu_custom",
         data_type="dict_custom",
         max_prompt_length=512,
         max_completion_length=1
@@ -225,7 +225,7 @@ def test_end_to_end(mock_subprocess_run, dummy_data_path, dummy_output_dir, tmp_
     # Load and preprocess data
     train_dataset, val_dataset = load_and_preprocess_data(
         data_path=str(dummy_data_path),
-        task_key="mmlu_custom",
+        finetuning_task_key="mmlu_custom",
         data_type="dict_custom",
         max_prompt_length=512,
         max_completion_length=1
