@@ -96,9 +96,8 @@ def test_tokenize_data(dummy_data_path):
     
     # Convert tensors to lists for label comparison if necessary
     expected_label = tokenizer.encode(untokenized_sample['completion'], add_special_tokens=False)[0]
-    # Assuming labels are shifted for language modeling, where the last token is the label
-    # and others are -100
     labels = sample['labels'].tolist()
+
     assert labels[:-1] == [-100] * (len(labels) - 1), "Labels except the last token should be -100"
     assert labels[-1] == expected_label, f"Expected last label to be {expected_label}, got {labels[-1]}"
 
@@ -185,16 +184,13 @@ def test_evaluate_model_with_lm_eval(mock_subprocess_run, dummy_output_dir, tmp_
         output_dir=str(tmp_path)
     )
     
-    # Now the directory should exist, and you can list its contents
     print(f"DIR CONTENTS {os.listdir(dummy_output_dir)}")
     
-    # Proceed with your assertions
     assert os.path.exists(tmp_path), f"Output directory {tmp_path} does not exist."
     assert os.path.exists(tmp_path / "lm_eval_results.json"), "lm_eval_results.json was not created."
     assert os.path.exists(tmp_path / "lm_eval_results_stdout.txt"), "lm_eval_results_stdout.txt was not created."
     assert os.path.exists(tmp_path / "lm_eval_results_stderr.txt"), "lm_eval_results_stderr.txt was not created."
     
-    # Check the contents of the stdout file
     with open(tmp_path / "lm_eval_results_stdout.txt", 'r') as f:
         stdout = f.read()
     assert "Evaluation completed successfully." in stdout, "Expected success message not found in stdout."
@@ -206,7 +202,6 @@ def test_end_to_end(mock_subprocess_run, dummy_data_path, dummy_output_dir, tmp_
     """
     An end-to-end test that runs the entire pipeline with dummy data.
     """
-    # Mock subprocess.run side effects
     def mock_run_side_effect(*args, **kwargs):
         os.makedirs(tmp_path, exist_ok=True)
         

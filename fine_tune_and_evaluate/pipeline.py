@@ -21,9 +21,8 @@ from transformers import (
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="numpy")
 
-# Configure logging
 logging.basicConfig(
-    level=logging.INFO,  # Set to DEBUG for more detailed logs
+    level=logging.INFO,  
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
@@ -200,14 +199,12 @@ def load_and_preprocess_data(
             logger.error("No questions or answers found under task key '%s'.", task_key)
             raise ValueError(f"No questions or answers found under task key '{task_key}'.")
     
-        # Create DataFrame
         logger.debug("Creating DataFrame from Qs and As.")
         df = pd.DataFrame({
             "question": Qs,
             "answers": As
         })
         
-        # Split into train and validation sets
         train_df, val_df = train_test_split(df, test_size=0.1, random_state=42)
         logger.info("Data split into training and validation sets.")
     
@@ -284,7 +281,6 @@ def tokenize_data(
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
     
     def tokenize_function(examples):
-        # Concatenate prompt and completion
         # The model will learn to generate 'completion' given 'prompt'
         inputs = examples['prompt']
         targets = examples['completion']
@@ -363,7 +359,7 @@ def fine_tune_model(
         trainer (Trainer): Trained Hugging Face Trainer object.
     """
     logger.info("Setting random seed for reproducibility.")
-    # Set seed for reproducibility
+
     torch.manual_seed(seed)
     if device.startswith("cuda"):
         torch.cuda.manual_seed_all(seed)
@@ -377,7 +373,6 @@ def fine_tune_model(
         logger.debug("Resizing token embeddings to accommodate new pad token.")
         model.resize_token_embeddings(len(tokenizer))
     
-    # Define TrainingArguments
     training_args = TrainingArguments(
         output_dir=output_dir,
         eval_strategy="epoch",
@@ -393,17 +388,16 @@ def fine_tune_model(
         load_best_model_at_end=True,
         seed=seed,
         fp16=True if device.startswith("cuda") else False,
-        report_to="none"  # Disable reporting to WandB or other services
+        report_to="none"  # no reporting to wandb rn
     )
     logger.debug("TrainingArguments configured: %s", training_args)
     
     # Define Data Collator
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
-        mlm=False,  # Causal LM does not use Masked Language Modeling
+        mlm=False, 
     )
     
-    # Initialize Trainer
     logger.info("Initializing Hugging Face Trainer.")
     trainer = Trainer(
         model=model,
@@ -535,7 +529,6 @@ def main():
     )
     logger.info("Model fine-tuning completed.")
     
-    # Evaluate the model if using OpenLLM Bench or dict_custom data
     if args.data_type in ["openllm_bench", "dict_custom"]:
         logger.info("Starting model evaluation with LM Evaluation Harness...")
         evaluate_model_with_lm_eval(
