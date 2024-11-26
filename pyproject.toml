@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "shirt"
+version = "0.1.0"
+description = ""
+authors = ["Harry Sanders <hwsand@umich.edu>", "Felipe Maia Polo <maiapolo@umich.edu>"]
+readme = "README.md"
+packages = [
+    { include = "fine_tune_and_evaluate" }
+]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+torch = "^2.5.1"
+pandas = "^2.2.3"
+tqdm = "^4.67.1"
+scikit-learn = "^1.5.2"
+datasets = "^3.1.0"
+transformers = "^4.46.3"
+lm-eval = {git = "https://github.com/EleutherAI/lm-evaluation-harness.git", rev = "main"}
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+jupyter = "^1.0.0"
+pytest = "^7.0.1"
+pytest-mock = "^3.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]

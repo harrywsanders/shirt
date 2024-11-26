@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*$py.class
+
+# Poetry virtual environment
+/.venv
+/.cache/pypoetry
+
+# Test results
+coverage.xml
+*.cover
+*.py,cover
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+test_*.xml
+
+# Logs
+logs/
+*.log
+
+# Data
+data/*.json
+data/*.pickle
