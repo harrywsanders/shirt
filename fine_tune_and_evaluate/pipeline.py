@@ -81,10 +81,10 @@ def parse_arguments():
     
     # Conditional arguments for OpenLLM Bench and dict_custom
     parser.add_argument(
-        "--task_key",
+        "--finetuning_task_key",
         type=str,
         required=False,
-        help="Key of the task in the OpenLLM Bench or dict_custom JSON data (e.g., 'mmlu'). Required for 'openllm_bench' and 'dict_custom' data types."
+        help="Key of the task in the OpenLLM Bench or dict_custom JSON data (e.g., 'mmlu') that we're finetuning on. Required for 'openllm_bench' and 'dict_custom' data types."
     )
     parser.add_argument(
         "--task_names",
@@ -148,13 +148,13 @@ def parse_arguments():
     
     # Validate arguments based on data_type
     if args.data_type in ["openllm_bench", "dict_custom"]:
-        if not args.task_key:
-            parser.error("--task_key is required when --data_type is 'openllm_bench' or 'dict_custom'.")
+        if not args.finetuning_task_key:
+            parser.error("--finetuning_task_key is required when --data_type is 'openllm_bench' or 'dict_custom'.")
         if not args.task_names:
             parser.error("--task_names is required when --data_type is 'openllm_bench' or 'dict_custom'.")
     elif args.data_type == "custom":
-        if args.task_key or args.task_names:
-            parser.error("--task_key and --task_names should not be provided when --data_type is 'custom'.")
+        if args.finetuning_task_key or args.task_names:
+            parser.error("--finetuning_task_key and --task_names should not be provided when --data_type is 'custom'.")
     
     logger.debug(f"Parsed arguments: {args}")
     return args
@@ -163,7 +163,7 @@ def parse_arguments():
 def load_and_preprocess_data(
     data_path: str,
     data_type: str,
-    task_key: Union[str, None],
+    finetuning_task_key: Union[str, None],
     max_prompt_length: int,
     max_completion_length: int
 ) -> Tuple[Dataset, Dataset]:
@@ -173,7 +173,7 @@ def load_and_preprocess_data(
     Args:
         data_path (str): Path to the QA dataset JSON file.
         data_type (str): Type of the input data ('openllm_bench', 'custom', or 'dict_custom').
-        task_key (str, optional): Key of the task in the OpenLLM Bench or dict_custom data.
+        finetuning_task_key (str, optional): Key of the task in the OpenLLM Bench or dict_custom data.
         max_prompt_length (int): Maximum token length for prompts.
         max_completion_length (int): Maximum token length for completions.
 
@@ -186,18 +186,18 @@ def load_and_preprocess_data(
         data = json.load(f)
     
     if data_type in ["openllm_bench", "dict_custom"]:
-        logger.debug("Processing data_type: %s with task_key: %s", data_type, task_key)
-        if task_key not in data:
-            logger.error("Task key '%s' not found in the provided %s data.", task_key, data_type)
-            raise ValueError(f"Task key '{task_key}' not found in the provided {data_type} data.")
+        logger.debug("Processing data_type: %s with finetuning_task_key: %s", data_type, finetuning_task_key)
+        if finetuning_task_key not in data:
+            logger.error("Task key '%s' not found in the provided %s data.", finetuning_task_key, data_type)
+            raise ValueError(f"Task key '{finetuning_task_key}' not found in the provided {data_type} data.")
         
-        Qs = data[task_key].get('Qs', {})
-        As = data[task_key].get('As', {})
+        Qs = data[finetuning_task_key].get('Qs', {})
+        As = data[finetuning_task_key].get('As', {})
 
         
         if not Qs or not As:
-            logger.error("No questions or answers found under task key '%s'.", task_key)
-            raise ValueError(f"No questions or answers found under task key '{task_key}'.")
+            logger.error("No questions or answers found under task key '%s'.", finetuning_task_key)
+            raise ValueError(f"No questions or answers found under task key '{finetuning_task_key}'.")
     
         logger.debug("Creating DataFrame from Qs and As.")
         df = pd.DataFrame({
@@ -455,8 +455,9 @@ def evaluate_model_with_lm_eval(
     lm_eval_command = [
         "lm_eval",
         "--model", "hf",
-        "--model_args", f"pretrained={model_path}",
+        "--model_args", f"pretrained={model_path},trust_remote_code=True",
         "--tasks", ",".join(task_names),
+        "--trust_remote_code",
         "--device", device,
         "--batch_size", str(batch_size),
         "--output_path", os.path.join(output_dir, "lm_eval_results.json"),
@@ -497,7 +498,7 @@ def main():
     train_dataset, val_dataset = load_and_preprocess_data(
         data_path=args.data_path,
         data_type=args.data_type,
-        task_key=args.task_key if args.data_type in ["openllm_bench", "dict_custom"] else None,
+        finetuning_task_key=args.finetuning_task_key if args.data_type in ["openllm_bench", "dict_custom"] else None,
         max_prompt_length=args.max_prompt_length,
         max_completion_length=args.max_completion_length
     )
