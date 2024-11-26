@@ -18,7 +18,7 @@
 
 - Python 3.12
 - [Poetry](https://python-poetry.org/) for dependency management
-- CUDA-enabled GPU
+- CUDA-enabled GPU [optional]
 
 ## Installation
 
@@ -67,21 +67,21 @@
 
 ## Usage
 
-The script is executed via the command line with various arguments to customize the fine-tuning process.
+The script is executed via a CLI.
 
 ### Command-Line Arguments
 
 - **Required Arguments:**
-  - `--model_name`: Name or path of the pre-trained Hugging Face model (e.g., `gpt2`, `EleutherAI/gpt-j-6B`).
+  - `--model_name`: Name or path of the pre-trained HF model (e.g., `gpt2`, `EleutherAI/gpt-j-6B`).
   - `--data_path`: Path to the QA dataset JSON file.
   - `--data_type`: Type of the input data. Choices:
-    - `openllm_bench`
-    - `custom`
-    - `dict_custom`
+    - `openllm_bench` [loads from OpenLLM Bench data]
+    - `custom` [loads from custom data, like what Felipe uploaded]
+    - `dict_custom` [unrelated edge case]
 
 - **Conditional Arguments (Required for `openllm_bench` and `dict_custom`):**
-  - `--task_key`: Key of the task in the OpenLLM Bench or dict_custom JSON data (e.g., `mmlu`).
-  - `--task_names`: List of evaluation task names (e.g., `mmlu hellaswag`).
+  - `--finetuning_finetuning_task_key`: Key of the task in the OpenLLM Bench or dict_custom JSON data (e.g., `mmlu` or `leaderboard_mmlu_pro`).
+  - `--task_names`: List of evaluation task names from LLM-EVAL (e.g., `mmlu hellaswag`).
 
 - **Optional Arguments:**
   - `--output_dir`: Directory to save the fine-tuned model and tokenizer. *(Default: `./fine-tuned-llm-QA`)*
@@ -112,14 +112,14 @@ python fine_tune_and_evaluate/pipeline.py \
 
 #### 2. Fine-Tuning with OpenLLM Bench Data
 
-Fine-tune the model using OpenLLM Bench data. Requires specifying the task key and task names for evaluation.
+Fine-tune the model using OpenLLM Bench data. Requires specifying the task key for finetuning and task names for evaluation.
 
 ```bash
 python fine_tune_and_evaluate/pipeline.py \
   --model_name distilgpt2 \
   --data_path data/data_QA.json \
   --data_type openllm_bench \
-  --task_key leaderboard_bbh_boolean_expressions \
+  --finetuning_task_key leaderboard_bbh_boolean_expressions \
   --task_names bbh \
   --output_dir ./fine-tuned-distilgpt2-openllm \
   --batch_size 2 \
@@ -129,14 +129,14 @@ python fine_tune_and_evaluate/pipeline.py \
 
 #### 3. Fine-Tuning with Dictionary Custom Data
 
-Fine-tune the model using dictionary-based custom data. Similar to OpenLLM Bench data, requires task key and task names.
+Fine-tune the model using dictionary-based custom data. Similar to OpenLLM Bench data, requires task key for ft and task names for eval.
 
 ```bash
 python fine_tune_and_evaluate/pipeline.py \
   --model_name facebook/opt-1.3b \
   --data_path /path/to/dict_custom_data.json \
   --data_type dict_custom \
-  --task_key custom_task \
+  --finetuning_task_key custom_task \
   --task_names custom_task1,custom_task2 \
   --output_dir ./fine-tuned-opt-dict-custom \
   --batch_size 8 \
@@ -167,7 +167,7 @@ For `data_type` set to `custom`, the JSON file should be a list of objects, each
 
 ### OpenLLM Bench Data
 
-For `data_type` set to `openllm_bench`, the JSON file should contain tasks with corresponding questions (`Qs`) and answers (`As`) under the specified `task_key`.
+For `data_type` set to `openllm_bench`, the JSON file should contain tasks with corresponding questions (`Qs`) and answers (`As`) under the specified `finetuning_task_key`.
 
 **Example:**
 
