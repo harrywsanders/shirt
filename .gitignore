@@ -27,3 +27,4 @@ logs/
 # Data
 data/*.json
 data/*.pickle
+baseline_deft/data_QA_processed.json
