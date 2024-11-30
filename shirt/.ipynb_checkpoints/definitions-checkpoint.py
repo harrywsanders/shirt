@@ -1,3 +1,11 @@
+model_name = 'Qwen/Qwen2.5-0.5B'
+ns_target = [5,10]
+ft_methods = ['shirt', 'deft', 'random']
+
+n_aux = 200
+n_epochs = 3
+batch_size = 4
+
 benchmarks = ['leaderboard_bbh_boolean_expressions',
               'leaderboard_bbh_causal_judgement',
               'leaderboard_bbh_date_understanding',

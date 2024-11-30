@@ -5,7 +5,7 @@ description = ""
 authors = ["Harry Sanders <hwsand@umich.edu>", "Felipe Maia Polo <maiapolo@umich.edu>"]
 readme = "README.md"
 packages = [
-    { include = "fine_tune_and_evaluate" }
+    { include = "shirt" }
 ]
 license = "MIT"
 

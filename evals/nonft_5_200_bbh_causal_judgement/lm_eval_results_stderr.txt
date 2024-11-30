@@ -1,0 +1,71 @@
+2024-11-30:19:23:24,966 INFO     [__main__.py:279] Verbosity set to INFO
+2024-11-30:19:23:44,547 INFO     [__main__.py:364] Passed `--trust_remote_code`, setting environment variable `HF_DATASETS_TRUST_REMOTE_CODE=true`
+2024-11-30:19:23:44,548 INFO     [__main__.py:376] Selected Tasks: ['leaderboard_bbh_causal_judgement']
+2024-11-30:19:23:44,556 INFO     [evaluator.py:164] Setting random seed to 0 | Setting numpy seed to 1234 | Setting torch manual seed to 1234 | Setting fewshot manual seed to 1234
+2024-11-30:19:23:44,556 INFO     [evaluator.py:201] Initializing hf model, with arguments: {'pretrained': 'Qwen/Qwen2.5-0.5B', 'trust_remote_code': True}
+2024-11-30:19:23:44,679 WARNING  [other.py:330] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-30:19:23:44,679 INFO     [huggingface.py:131] Using device 'cuda'
+2024-11-30:19:23:45,180 INFO     [huggingface.py:368] Model parallel was set to False, max memory was not set, and device map was set to {'': 'cuda'}
+
+Generating test split:   0%|                                                                                                                   | 0/187 [00:00<?, ? examples/s]
+Generating test split: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████| 187/187 [00:00<00:00, 15918.47 examples/s]
+2024-11-30:19:23:50,646 INFO     [task.py:415] Building contexts for leaderboard_bbh_causal_judgement on rank 0...
+
+  0%|                                                                                                                                                 | 0/187 [00:00<?, ?it/s]
+ 21%|████████████████████████████▏                                                                                                          | 39/187 [00:00<00:00, 382.68it/s]
+ 43%|█████████████████████████████████████████████████████████▊                                                                             | 80/187 [00:00<00:00, 394.32it/s]
+ 64%|█████████████████████████████████████████████████████████████████████████████████████▉                                                | 120/187 [00:00<00:00, 387.03it/s]
+ 86%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                   | 160/187 [00:00<00:00, 389.07it/s]
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 187/187 [00:00<00:00, 389.53it/s]
+2024-11-30:19:23:51,136 INFO     [evaluator.py:496] Running loglikelihood requests
+
+Running loglikelihood requests:   0%|                                                                                                                 | 0/374 [00:00<?, ?it/s]
+Running loglikelihood requests:   0%|▎                                                                                                        | 1/374 [00:00<05:23,  1.15it/s]
+Running loglikelihood requests:   2%|██▌                                                                                                      | 9/374 [00:01<00:48,  7.49it/s]
+Running loglikelihood requests:   5%|████▋                                                                                                   | 17/374 [00:01<00:34, 10.29it/s]
+Running loglikelihood requests:   7%|██████▉                                                                                                 | 25/374 [00:02<00:28, 12.06it/s]
+Running loglikelihood requests:   9%|█████████▏                                                                                              | 33/374 [00:02<00:25, 13.40it/s]
+Running loglikelihood requests:  11%|███████████▍                                                                                            | 41/374 [00:03<00:23, 14.42it/s]
+Running loglikelihood requests:  13%|█████████████▋                                                                                          | 49/374 [00:03<00:21, 15.12it/s]
+Running loglikelihood requests:  15%|███████████████▊                                                                                        | 57/374 [00:04<00:19, 15.93it/s]
+Running loglikelihood requests:  17%|██████████████████                                                                                      | 65/374 [00:04<00:18, 16.71it/s]
+Running loglikelihood requests:  20%|████████████████████▎                                                                                   | 73/374 [00:05<00:17, 17.44it/s]
+Running loglikelihood requests:  22%|██████████████████████▌                                                                                 | 81/374 [00:05<00:16, 18.13it/s]
+Running loglikelihood requests:  24%|████████████████████████▋                                                                               | 89/374 [00:06<00:14, 19.06it/s]
+Running loglikelihood requests:  26%|██████████████████████████▉                                                                             | 97/374 [00:06<00:14, 19.73it/s]
+Running loglikelihood requests:  28%|████████████████████████████▉                                                                          | 105/374 [00:06<00:13, 20.26it/s]
+Running loglikelihood requests:  30%|███████████████████████████████                                                                        | 113/374 [00:07<00:12, 20.65it/s]
+Running loglikelihood requests:  32%|█████████████████████████████████▎                                                                     | 121/374 [00:07<00:12, 21.04it/s]
+Running loglikelihood requests:  34%|███████████████████████████████████▌                                                                   | 129/374 [00:07<00:11, 21.35it/s]
+Running loglikelihood requests:  37%|█████████████████████████████████████▋                                                                 | 137/374 [00:08<00:10, 21.57it/s]
+Running loglikelihood requests:  39%|███████████████████████████████████████▉                                                               | 145/374 [00:08<00:10, 21.74it/s]
+Running loglikelihood requests:  41%|██████████████████████████████████████████▏                                                            | 153/374 [00:08<00:10, 22.01it/s]
+Running loglikelihood requests:  43%|████████████████████████████████████████████▎                                                          | 161/374 [00:09<00:09, 22.17it/s]
+Running loglikelihood requests:  45%|██████████████████████████████████████████████▌                                                        | 169/374 [00:09<00:09, 22.34it/s]
+Running loglikelihood requests:  47%|████████████████████████████████████████████████▋                                                      | 177/374 [00:09<00:08, 22.40it/s]
+Running loglikelihood requests:  49%|██████████████████████████████████████████████████▉                                                    | 185/374 [00:10<00:08, 22.44it/s]
+Running loglikelihood requests:  52%|█████████████████████████████████████████████████████▏                                                 | 193/374 [00:10<00:08, 22.48it/s]
+Running loglikelihood requests:  54%|███████████████████████████████████████████████████████▎                                               | 201/374 [00:11<00:07, 22.75it/s]
+Running loglikelihood requests:  56%|█████████████████████████████████████████████████████████▌                                             | 209/374 [00:11<00:07, 22.89it/s]
+Running loglikelihood requests:  58%|███████████████████████████████████████████████████████████▊                                           | 217/374 [00:11<00:06, 23.00it/s]
+Running loglikelihood requests:  60%|█████████████████████████████████████████████████████████████▉                                         | 225/374 [00:12<00:06, 23.09it/s]
+Running loglikelihood requests:  62%|████████████████████████████████████████████████████████████████▏                                      | 233/374 [00:12<00:06, 23.17it/s]
+Running loglikelihood requests:  64%|██████████████████████████████████████████████████████████████████▎                                    | 241/374 [00:12<00:05, 23.26it/s]
+Running loglikelihood requests:  67%|████████████████████████████████████████████████████████████████████▌                                  | 249/374 [00:13<00:05, 23.36it/s]
+Running loglikelihood requests:  69%|██████████████████████████████████████████████████████████████████████▊                                | 257/374 [00:13<00:04, 23.41it/s]
+Running loglikelihood requests:  71%|████████████████████████████████████████████████████████████████████████▉                              | 265/374 [00:13<00:04, 23.45it/s]
+Running loglikelihood requests:  74%|███████████████████████████████████████████████████████████████████████████▋                           | 275/374 [00:14<00:03, 25.29it/s]
+Running loglikelihood requests:  76%|█████████████████████████████████████████████████████████████████████████████▉                         | 283/374 [00:14<00:03, 24.78it/s]
+Running loglikelihood requests:  78%|████████████████████████████████████████████████████████████████████████████████▋                      | 293/374 [00:14<00:03, 26.30it/s]
+Running loglikelihood requests:  80%|██████████████████████████████████████████████████████████████████████████████████▉                    | 301/374 [00:15<00:02, 25.61it/s]
+Running loglikelihood requests:  83%|█████████████████████████████████████████████████████████████████████████████████████                  | 309/374 [00:15<00:02, 25.17it/s]
+Running loglikelihood requests:  85%|███████████████████████████████████████████████████████████████████████████████████████▎               | 317/374 [00:15<00:02, 24.94it/s]
+Running loglikelihood requests:  87%|█████████████████████████████████████████████████████████████████████████████████████████▌             | 325/374 [00:16<00:01, 24.81it/s]
+Running loglikelihood requests:  89%|███████████████████████████████████████████████████████████████████████████████████████████▋           | 333/374 [00:16<00:01, 24.73it/s]
+Running loglikelihood requests:  91%|█████████████████████████████████████████████████████████████████████████████████████████████▉         | 341/374 [00:16<00:01, 24.84it/s]
+Running loglikelihood requests:  93%|████████████████████████████████████████████████████████████████████████████████████████████████       | 349/374 [00:17<00:01, 24.89it/s]
+Running loglikelihood requests:  95%|██████████████████████████████████████████████████████████████████████████████████████████████████▎    | 357/374 [00:17<00:00, 24.93it/s]
+Running loglikelihood requests:  98%|████████████████████████████████████████████████████████████████████████████████████████████████████▌  | 365/374 [00:17<00:00, 25.21it/s]
+Running loglikelihood requests: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 374/374 [00:17<00:00, 21.01it/s]
+2024-11-30:19:24:19,134 INFO     [evaluation_tracker.py:206] Saving results aggregated
+2024-11-30:19:24:19,141 INFO     [evaluation_tracker.py:287] Saving per-sample results for: leaderboard_bbh_causal_judgement

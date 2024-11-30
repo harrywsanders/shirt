@@ -1,0 +1,5 @@
+hf (pretrained=../ft_models/deft_5_200_bbh_logical_deduction_seven_objects,trust_remote_code=True,trust_remote_code=True), gen_kwargs: (None), limit: None, num_fewshot: None, batch_size: 4
+|                     Tasks                     |Version|Filter|n-shot| Metric |   |Value|   |Stderr|
+|-----------------------------------------------|------:|------|-----:|--------|---|----:|---|-----:|
+|leaderboard_bbh_logical_deduction_seven_objects|      1|none  |     3|acc_norm|↑  |0.156|±  | 0.023|
+

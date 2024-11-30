@@ -115,8 +115,6 @@ def save_ft_data(n_sample_qs, target_benchmark, n_aux):
         json.dump(dict_random, outfile)
 
 if __name__=="__main__":
-    n_aux = 200
-    ns = [5,10,30]
-    for n in tqdm(ns):
+    for n in tqdm(ns_target):
         for bench in tqdm(benchmarks):
             save_ft_data(n_sample_qs=n, target_benchmark=bench, n_aux=n_aux)

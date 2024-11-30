@@ -5,7 +5,6 @@ import subprocess
 import sys
 import logging
 from typing import List, Tuple, Union
-
 import pandas as pd
 import torch
 from datasets import Dataset
@@ -19,8 +18,6 @@ from transformers import (
 )
 
 import warnings
-
-#python pipeline.py   --model_name distilgpt2   --data_path ../ft_data/deft_n-target=10_n-aux=200_leaderboard_bbh_boolean_expressions.json   --data_type openllm_bench   --finetuning_task_key ft_data --task_names bbh_boolean_expressions   --output_dir ../ft_models/fine-tuned-distilgpt2-openllm   --batch_size 2   --num_epochs 1   --learning_rate 5e-5
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="numpy")
 
@@ -41,7 +38,7 @@ def install_packages():
     try:
         import transformers
         import datasets
-        #import lm_eval
+        import lm_eval
         logger.info("Required packages are already installed.")
     except ImportError as e:
         logger.warning(f"Missing package detected: {e.name}. Installing required packages...")
@@ -330,7 +327,6 @@ def tokenize_data(
     logger.info("Tokenization completed successfully.")
     return tokenized_train, tokenized_val
 
-
 def fine_tune_model(
     model_name: str,
     tokenizer: AutoTokenizer,
@@ -370,6 +366,7 @@ def fine_tune_model(
     logger.info("Loading pre-trained model: %s", model_name)
     # Load pre-trained model
     model = AutoModelForCausalLM.from_pretrained(model_name)
+    model.gradient_checkpointing_enable()
     
     # Resize token embeddings if a new pad token was added
     if tokenizer.pad_token is not None and tokenizer.pad_token_id != model.config.pad_token_id:
@@ -384,7 +381,7 @@ def fine_tune_model(
         per_device_eval_batch_size=batch_size,
         num_train_epochs=num_epochs,
         weight_decay=0.01,
-        save_total_limit=2,
+        save_total_limit=1,
         logging_dir=os.path.join(output_dir, 'logs'),
         logging_steps=10,
         save_strategy='epoch',
@@ -412,6 +409,7 @@ def fine_tune_model(
     
     # Fine-Tune the Model
     logger.info("Starting model fine-tuning.")
+
     trainer.train()
     logger.info("Model fine-tuning completed.")
     
@@ -463,6 +461,7 @@ def evaluate_model_with_lm_eval(
         "--trust_remote_code",
         "--device", device,
         "--batch_size", str(batch_size),
+        "--log_samples",
         "--output_path", os.path.join(output_dir, "lm_eval_results.json"),
     ]
 
@@ -532,19 +531,19 @@ def main():
         seed=args.seed
     )
     logger.info("Model fine-tuning completed.")
-    
-    if args.data_type in ["openllm_bench", "dict_custom"]:
-        logger.info("Starting model evaluation with LM Evaluation Harness...")
-        evaluate_model_with_lm_eval(
-            model_path=args.output_dir,
-            task_names=args.task_names,
-            device=args.device,
-            batch_size=args.batch_size,
-            output_dir=args.output_dir
-        )
-        logger.info("Model evaluation completed.")
-    else:
-        logger.info("Skipping evaluation as data_type is 'custom'. To evaluate, please use 'openllm_bench' or 'dict_custom' data types.")
+
+    #if args.data_type in ["openllm_bench", "dict_custom"]:
+    #    logger.info("Starting model evaluation with LM Evaluation Harness...")
+    #    evaluate_model_with_lm_eval(
+    #        model_path=args.output_dir,
+    #        task_names=args.task_names,
+    #        device=args.device,
+    #        batch_size=args.batch_size,
+    #        output_dir=args.output_dir
+    #    )
+    #    logger.info("Model evaluation completed.")
+    #else:
+    #    logger.info("Skipping evaluation as data_type is 'custom'. To evaluate, please use 'openllm_bench' or 'dict_custom' data types.")
 
 
 if __name__ == "__main__":

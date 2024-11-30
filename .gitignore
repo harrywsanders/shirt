@@ -27,4 +27,5 @@ logs/
 # Data
 data/*.json
 data/*.pickle
+ft_models/
 baseline_deft/data_QA_processed.json
