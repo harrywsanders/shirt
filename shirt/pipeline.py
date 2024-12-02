@@ -16,8 +16,8 @@ from transformers import (
     TrainingArguments,
     DataCollatorForLanguageModeling,
 )
-
 import warnings
+import wandb  # Import wandb
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="numpy")
 
@@ -30,7 +30,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def install_packages():
     """
     Install required packages if they are not already installed.
@@ -39,16 +38,17 @@ def install_packages():
         import transformers
         import datasets
         import lm_eval
+        import wandb  # Ensure wandb is installed
         logger.info("Required packages are already installed.")
     except ImportError as e:
         logger.warning(f"Missing package detected: {e.name}. Installing required packages...")
         subprocess.check_call([
             sys.executable, "-m", "pip", "install",
             "transformers", "datasets", "scikit-learn",
-            "pandas", "torch", "accelerate", "lm-evaluation-harness[all]"
+            "pandas", "torch", "accelerate", "lm-evaluation-harness[all]",
+            "wandb"  # Install wandb
         ])
         logger.info("All packages are installed.")
-
 
 def parse_arguments():
     """
@@ -144,6 +144,25 @@ def parse_arguments():
         help="Device to run training and evaluation on ('cuda' or 'cpu')."
     )
     
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default="llm-finetuning",
+        help="WandB project name."
+    )
+    parser.add_argument(
+        "--wandb_entity",
+        type=str,
+        default=None,
+        help="WandB entity (team) name. Optional."
+    )
+    parser.add_argument(
+        "--wandb_run_name",
+        type=str,
+        default=None,
+        help="WandB run name. Optional."
+    )
+    
     args = parser.parse_args()
     
     # Validate arguments based on data_type
@@ -158,7 +177,6 @@ def parse_arguments():
     
     logger.debug(f"Parsed arguments: {args}")
     return args
-
 
 def load_and_preprocess_data(
     data_path: str,
@@ -251,7 +269,6 @@ def load_and_preprocess_data(
     logger.info("Datasets loaded and preprocessed successfully.")
     return train_dataset, val_dataset
 
-
 def tokenize_data(
     train_dataset: Dataset,
     val_dataset: Dataset,
@@ -275,17 +292,15 @@ def tokenize_data(
     """
     logger.info("Starting tokenization of datasets.")
     
-    # Ensure the tokenizer has a pad token
     if tokenizer.pad_token is None:
         logger.debug("Tokenizer has no pad token. Adding pad token '[PAD]'.")
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
     
     def tokenize_function(examples):
-        # The model will learn to generate 'completion' given 'prompt'
+        # the model will learn to generate 'completion' given 'prompt'
         inputs = examples['prompt']
         targets = examples['completion']
 
-        # Encode inputs (prompts)
         input_encodings = tokenizer(
             inputs,
             truncation=True,
@@ -293,7 +308,6 @@ def tokenize_data(
             padding='max_length'
         )
 
-        # Encode targets (answers)
         target_encodings = tokenizer(
             text_target=targets,
             truncation=True,
@@ -308,18 +322,15 @@ def tokenize_data(
             for label_seq in labels
         ]
 
-        # Combine inputs and labels
         input_encodings['labels'] = labels
 
         return input_encodings
 
-    # Apply tokenization
     logger.debug("Tokenizing training dataset.")
     tokenized_train = train_dataset.map(tokenize_function, batched=True)
     logger.debug("Tokenizing validation dataset.")
     tokenized_val = val_dataset.map(tokenize_function, batched=True)
 
-    # Set the format for PyTorch
     logger.debug("Setting dataset format to PyTorch tensors.")
     tokenized_train.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
     tokenized_val.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
@@ -337,7 +348,8 @@ def fine_tune_model(
     batch_size: int,
     num_epochs: int,
     device: str,
-    seed: int
+    seed: int,
+    wandb_config: dict
 ) -> Trainer:
     """
     Fine-tune the model using Hugging Face Trainer.
@@ -353,6 +365,7 @@ def fine_tune_model(
         num_epochs (int): Number of training epochs.
         device (str): Device to run training on ('cuda' or 'cpu').
         seed (int): Random seed for reproducibility.
+        wandb_config (dict): Configuration dictionary for wandb.
 
     Returns:
         trainer (Trainer): Trained Hugging Face Trainer object.
@@ -364,11 +377,9 @@ def fine_tune_model(
         torch.cuda.manual_seed_all(seed)
     
     logger.info("Loading pre-trained model: %s", model_name)
-    # Load pre-trained model
     model = AutoModelForCausalLM.from_pretrained(model_name)
     model.gradient_checkpointing_enable()
-    
-    # Resize token embeddings if a new pad token was added
+
     if tokenizer.pad_token is not None and tokenizer.pad_token_id != model.config.pad_token_id:
         logger.debug("Resizing token embeddings to accommodate new pad token.")
         model.resize_token_embeddings(len(tokenizer))
@@ -383,12 +394,13 @@ def fine_tune_model(
         weight_decay=0.01,
         save_total_limit=1,
         logging_dir=os.path.join(output_dir, 'logs'),
-        logging_steps=10,
+        logging_steps=3,
         save_strategy='epoch',
         load_best_model_at_end=True,
         seed=seed,
         fp16=True if device.startswith("cuda") else False,
-        report_to="none"  # no reporting to wandb rn
+        report_to=["wandb"],  
+        run_name=wandb_config.get("run_name")  
     )
     logger.debug("TrainingArguments configured: %s", training_args)
     
@@ -409,7 +421,6 @@ def fine_tune_model(
     
     # Fine-Tune the Model
     logger.info("Starting model fine-tuning.")
-
     trainer.train()
     logger.info("Model fine-tuning completed.")
     
@@ -420,7 +431,6 @@ def fine_tune_model(
     logger.info("Fine-tuned model and tokenizer saved successfully.")
     
     return trainer
-
 
 def evaluate_model_with_lm_eval(
     model_path: str,
@@ -441,7 +451,6 @@ def evaluate_model_with_lm_eval(
     """
     logger.info("Starting model evaluation with LM Evaluation Harness.")
     
-    # Ensure lm-evaluation-harness is installed
     try:
         import lm_eval
         logger.info("lm-evaluation-harness is already installed.")
@@ -486,7 +495,15 @@ def evaluate_model_with_lm_eval(
         with open(stderr_path, 'w') as f:
             f.write(result.stderr)
         logger.info("Evaluation results saved to %s and %s", stdout_path, stderr_path)
-
+        
+        if wandb.run is not None:
+            logger.info("Logging evaluation results to wandb.")
+            try:
+                eval_results = json.loads(result.stdout)
+                wandb.log(eval_results)
+                logger.info("Evaluation results logged to wandb successfully.")
+            except json.JSONDecodeError:
+                logger.warning("Failed to parse evaluation results as JSON. Skipping wandb logging for evaluation results.")
 
 def main():
     install_packages()
@@ -495,6 +512,35 @@ def main():
     
     os.makedirs(args.output_dir, exist_ok=True)
     logger.info("Output directory set to: %s", args.output_dir)
+    
+    # Initialize wandb
+    logger.info("Initializing wandb.")
+    wandb_config = {
+        "project": args.wandb_project,
+        "entity": args.wandb_entity,
+        "name": args.wandb_run_name
+    }
+    wandb.init(
+        project=args.wandb_project,
+        entity=args.wandb_entity,
+        name=args.wandb_run_name,
+        config={
+            "model_name": args.model_name,
+            "data_path": args.data_path,
+            "data_type": args.data_type,
+            "finetuning_task_key": args.finetuning_task_key,
+            "task_names": args.task_names,
+            "output_dir": args.output_dir,
+            "batch_size": args.batch_size,
+            "num_epochs": args.num_epochs,
+            "learning_rate": args.learning_rate,
+            "max_prompt_length": args.max_prompt_length,
+            "max_completion_length": args.max_completion_length,
+            "seed": args.seed,
+            "device": args.device
+        },
+        reinit=True  # Allow multiple runs in the same script
+    )
     
     logger.info("Loading and preprocessing data...")
     train_dataset, val_dataset = load_and_preprocess_data(
@@ -528,23 +574,28 @@ def main():
         batch_size=args.batch_size,
         num_epochs=args.num_epochs,
         device=args.device,
-        seed=args.seed
+        seed=args.seed,
+        wandb_config=wandb_config
     )
     logger.info("Model fine-tuning completed.")
-
-    #if args.data_type in ["openllm_bench", "dict_custom"]:
-    #    logger.info("Starting model evaluation with LM Evaluation Harness...")
-    #    evaluate_model_with_lm_eval(
-    #        model_path=args.output_dir,
-    #        task_names=args.task_names,
-    #        device=args.device,
-    #        batch_size=args.batch_size,
-    #        output_dir=args.output_dir
-    #    )
-    #    logger.info("Model evaluation completed.")
-    #else:
-    #    logger.info("Skipping evaluation as data_type is 'custom'. To evaluate, please use 'openllm_bench' or 'dict_custom' data types.")
-
+    
+    # Uncomment the evaluation section if needed
+    if args.data_type in ["openllm_bench", "dict_custom"]:
+        logger.info("Starting model evaluation with LM Evaluation Harness...")
+        evaluate_model_with_lm_eval(
+            model_path=args.output_dir,
+            task_names=args.task_names,
+            device=args.device,
+            batch_size=args.batch_size,
+            output_dir=args.output_dir
+        )
+        logger.info("Model evaluation completed.")
+    else:
+        logger.info("Skipping evaluation as data_type is 'custom'. To evaluate, please use 'openllm_bench' or 'dict_custom' data types.")
+    
+    # Finish the wandb run
+    logger.info("Finishing wandb run.")
+    wandb.finish()
 
 if __name__ == "__main__":
     main()

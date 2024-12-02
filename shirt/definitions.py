@@ -3,8 +3,8 @@ ns_target = [5,10]
 ft_methods = ['shirt', 'deft', 'random']
 
 n_aux = 200
-n_epochs = 3
-batch_size = 4
+n_epochs = 20
+batch_size = 16
 
 benchmarks = ['leaderboard_bbh_boolean_expressions',
               'leaderboard_bbh_causal_judgement',

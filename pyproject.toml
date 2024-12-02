@@ -18,6 +18,7 @@ scikit-learn = "^1.5.2"
 datasets = "^3.1.0"
 transformers = "^4.46.3"
 lm-eval = {git = "https://github.com/EleutherAI/lm-evaluation-harness.git", rev = "main"}
+wandb = "^0.18.7"
 
 
 [tool.poetry.group.dev.dependencies]
